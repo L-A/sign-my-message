@@ -2,76 +2,122 @@ import Head from "next/head";
 import { useState } from "react";
 import Form from "../components/form";
 import { SignMessage } from "../helpers/tz";
+import Result from "../components/result";
+
+import { theme } from "../theme";
+import Arrow from "../components/arrow";
+
+export type ResultType = {
+  signedMessage: string;
+  sourceMessage: string;
+};
 
 export default function Home() {
-  const [result, setResult] = useState("");
+  const [results, setResults] = useState<ResultType[]>([]);
+  const [currentSource, setCurrentSource] = useState("");
+
+  const addResult = (r: ResultType) => {
+    setResults(results.concat([r]));
+  };
 
   const getSignedMessage = async (message: string) => {
     if (message === "") return;
     const result = await SignMessage(message);
-    setResult(result);
-  }
+    setCurrentSource(message);
+    addResult({ sourceMessage: message, signedMessage: result });
+  };
 
-  const displayedResult = result === "" ? "Your signed message will appear here" : result;
+  console.log(results);
 
   return (
-    <div className="root">
+    <>
       <Head>
         <title>Sign my message</title>
-        <meta name="description" content="Sign arbitrary messages with your web3 wallets" />
+        <meta
+          name="description"
+          content="Sign arbitrary messages with your web3 wallets"
+        />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main>
-        <h1>Sign my message</h1>
-        <Form requestSign={getSignedMessage} />
-        <p className="result">{displayedResult}</p>
-      </main>
-      <footer>Foo</footer>
-      <style jsx global>{`
-        * {
-          box-sizing: border-box;
-        }
+      <div className="root">
+        <main>
+          <h1>Tezos (XTZ) - Message sign tool</h1>
+          <div className="form">
+            <Form requestSign={getSignedMessage} />
+          </div>
+          <Arrow />
+          <div className="results">
+            {results.map((result) => (
+              <Result key={result.sourceMessage} {...result} />
+            ))}
+          </div>
+        </main>
 
-        html {
-          font-family: system, helvetica, sans-serif;
-        }
+        <footer>
+          A tiny public service by{" "}
+          <a href="https://tinyrevolt.com/en">Tiny Revolt</a>
+        </footer>
+        <style jsx global>{`
+          * {
+            box-sizing: border-box;
+          }
 
-        body {
-          margin: 0;
-        }
-      `}</style>
-      <style jsx>{`
-        .result {
-          border: solid 1px #DDD;
-          background-color: #EEE;
-          border-radius: 8px;
-          padding: 8px;
-          font-family: monospace;
-          word-wrap: break-word;
-        }
+          html {
+            font-family: system, helvetica, sans-serif;
+            background-image: ${theme.backgroundGradient};
+            background-attachment: fixed;
+          }
 
-        .root {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          height: 100vh;
-        }
+          body {
+            color: ${theme.dark};
+            margin: 0;
+          }
+        `}</style>
+        <style jsx>{`
+          .root {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+          }
 
-        main,
-        footer {
-          padding: 1rem;
-          width: 26rem;
-          margin: 0 auto;
-          max-width: 100%;
-        }
+          .form {
+            padding: 1rem 1rem;
 
-        footer {
-          text-align: center;
-          padding: 1rem;
-          margin-top: auto;
-        }
-      `}</style>
-    </div>
+            background: ${theme.light};
+            border: solid 1px #eee;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          }
+
+          main,
+          footer {
+            width: 26rem;
+            margin: 0 0;
+            max-width: 100%;
+            margin-top: auto;
+          }
+
+          h1 {
+            color: ${theme.mid};
+            font-size: 16px;
+            font-weight: normal;
+            text-align: center;
+            margin-bottom: 1rem;
+          }
+
+          footer {
+            color: ${theme.mid};
+            text-align: center;
+            padding: 1rem;
+          }
+
+          a {
+            color: inherit;
+          }
+        `}</style>
+      </div>
+    </>
   );
 }
