@@ -34,8 +34,6 @@ const SignMessage = async (message: string): Promise<string> => {
     payload: payloadBytes,
   });
 
-  console.log(response);
-
   return response.signature;
 };
 

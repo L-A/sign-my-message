@@ -1,18 +1,19 @@
-import { ChangeEvent, FormEvent, useState } from "react";
-
-import { char2Bytes } from "@taquito/utils";
+import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 
 import { theme } from "../theme";
 
 interface formProps {
   requestSign: (string: string) => {};
+  startingInput: string;
 }
 
-const Form = ({ requestSign }: formProps) => {
-  const [message, setMessage] = useState("");
+const Form = ({ requestSign, startingInput = "" }: formProps) => {
+  const [message, setMessage] = useState(startingInput);
+  useEffect(() => {
+    setMessage(startingInput);
+  }, [startingInput]);
 
   const onFieldChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    console.log(char2Bytes(e.target.value));
     setMessage(e.target.value);
   };
 
@@ -62,6 +63,10 @@ const Form = ({ requestSign }: formProps) => {
           border: none;
           width: 100%;
           padding: 0.75rem;
+        }
+
+        button:hover {
+          background-color: ${theme.dark};
         }
 
         button:focus {

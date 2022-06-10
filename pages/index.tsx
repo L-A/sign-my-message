@@ -1,11 +1,12 @@
 import Head from "next/head";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Form from "../components/form";
 import { SignMessage } from "../helpers/tz";
 import Result from "../components/result";
 
 import { theme } from "../theme";
 import Arrow from "../components/arrow";
+import { useRouter } from "next/router";
 
 export type ResultType = {
   signedMessage: string;
@@ -13,8 +14,15 @@ export type ResultType = {
 };
 
 export default function Home() {
+  const router = useRouter();
+  const [startingInput, setStartingInput] = useState("");
+  useEffect(() => {
+    if (typeof router.query.input == "string") {
+      setStartingInput(router.query.input);
+    }
+  }, [router]);
+
   const [results, setResults] = useState<ResultType[]>([]);
-  const [currentSource, setCurrentSource] = useState("");
 
   const addResult = (r: ResultType) => {
     setResults(results.concat([r]));
@@ -23,11 +31,8 @@ export default function Home() {
   const getSignedMessage = async (message: string) => {
     if (message === "") return;
     const result = await SignMessage(message);
-    setCurrentSource(message);
     addResult({ sourceMessage: message, signedMessage: result });
   };
-
-  console.log(results);
 
   return (
     <>
@@ -42,11 +47,14 @@ export default function Home() {
 
       <div className="root">
         <main>
-          <h1>Tezos (XTZ) - Message sign tool</h1>
+          <h1>Tezos (XTZ) - Signing tool</h1>
           <div className="form">
-            <Form requestSign={getSignedMessage} />
+            <Form
+              requestSign={getSignedMessage}
+              startingInput={startingInput}
+            />
           </div>
-          <Arrow />
+          <Arrow dimmed={results.length == 0} />
           <div className="results">
             {results.map((result) => (
               <Result key={result.sourceMessage} {...result} />
@@ -111,6 +119,7 @@ export default function Home() {
             color: ${theme.mid};
             text-align: center;
             padding: 1rem;
+            font-size: 14px;
           }
 
           a {
