@@ -23,12 +23,10 @@ const SignatureCheck = async (req: NextApiRequest, res: NextApiResponse) => {
   }
 
   if (message.includes("Tezos Signed Message: ")) {
-    res
-      .status(400)
-      .json({
-        error:
-          "You can remove the 'Tezos Signed Message: ' prefix, it's automatically added during validation",
-      });
+    res.status(400).json({
+      error:
+        "You can remove the 'Tezos Signed Message: ' prefix, it's automatically added during validation",
+    });
     return;
   }
 
@@ -37,14 +35,12 @@ const SignatureCheck = async (req: NextApiRequest, res: NextApiResponse) => {
   );
   const accountJSON = await accountFetch.json();
   const messageBytes = BuildMessageBytes(message);
-  console.log(messageBytes);
 
   const validation = verifySignature(
     messageBytes,
     accountJSON.pubkey,
     signature
   );
-  console.log(validation);
 
   res.status(200).json({
     account: accountJSON.address,
